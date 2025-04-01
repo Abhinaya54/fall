@@ -1,5 +1,7 @@
 # Human Fall Detection Using YOLOv12 and MediaPipe
 
+![Program Preview](https://imgur.com/a/ClCcBmN)
+
 A real-time fall detection system using computer vision with YOLOv12 for person detection and MediaPipe for pose estimation. The system features an intuitive dashboard for monitoring and analyzing falls.
 
 ## Features
