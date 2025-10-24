@@ -1,0 +1,20 @@
+function showVideoFromBackend(){
+videoArea.innerHTML = '';
+let img = document.createElement('img');
+img.src = "http://127.0.0.1:5000/video_feed"; // Flask feed
+img.style.width = '100%';
+img.style.height = '100%';
+img.style.objectFit = 'cover';
+videoArea.appendChild(img);
+}
+
+// Poll for alerts
+setInterval(async () => {
+let res = await fetch("http://127.0.0.1:5000/alerts");
+let alerts = await res.json();
+alerts.forEach(alert => addNotification("⚠ " + alert));
+}, 3000);
+
+liveCamBtn.onclick = () => {
+showVideoFromBackend();
+};

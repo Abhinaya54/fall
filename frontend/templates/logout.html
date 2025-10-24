@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guardian Angle - Logout</title>
+<style>
+:root {
+  --primary:#FF6B35;
+  --primary-hover:#E65A25;
+  --bg-light:#FFFFFF;
+  --text-light:#212529;
+  --bg-dark:#1E1E2F;
+  --text-dark:#F4F6F8;
+}
+
+body {
+  font-family:'Inter', sans-serif;
+  background:var(--bg-light);
+  color:var(--text-light);
+  display:flex; flex-direction:column;
+  min-height:100vh; margin:0;
+  transition:background 0.4s, color 0.4s;
+}
+body.dark { background:var(--bg-dark); color:var(--text-dark); }
+
+/* Container */
+.container {
+  flex:1; display:flex; flex-direction:column;
+  justify-content:center; align-items:center; text-align:center;
+}
+
+/* Logout Button */
+.logout-btn {
+  background:var(--primary);
+  color:#fff; border:none;
+  padding:15px 40px;
+  font-size:1.2rem; font-weight:600;
+  border-radius:50px;
+  cursor:pointer;
+  box-shadow:0 0 15px rgba(255,107,53,0.6);
+  transition:all 0.3s ease-in-out;
+}
+.logout-btn:hover {
+  background:var(--primary-hover);
+  box-shadow:0 0 25px rgba(255,107,53,0.9);
+  transform:scale(1.05);
+}
+
+/* Footer */
+footer {
+  background:#F4F6F8;
+  padding:20px 10px;
+  text-align:center;
+  margin-top:auto;
+}
+footer p { margin:5px 0; font-size:0.9rem; }
+footer a { margin:0 8px; text-decoration:none; color:#4A90E2; font-size:1.1rem; transition:0.3s; }
+footer a:hover { color:#FF6B35; }
+body.dark footer { background:#2C2C3A; }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<div class="container">
+  <h1>Logout</h1>
+  <form method="POST" style="width:100%; max-width:350px; margin:0 auto; display:flex; flex-direction:column; gap:18px; align-items:center;">
+    <input type="text" placeholder="Username" value="{{ username if not logged_out else '' }}" style="padding:12px; border-radius:10px; border:1px solid #eee; font-size:1.1rem; background:#f4f6f8; width:100%;" readonly>
+    <input type="password" placeholder="Password" value="{{ password if not logged_out else '' }}" style="padding:12px; border-radius:10px; border:1px solid #eee; font-size:1.1rem; background:#f4f6f8; width:100%;" readonly>
+    <div style="display:flex; gap:24px; justify-content:center; margin-top:24px;">
+      <button type="button" class="logout-btn" style="background:#212529;" onclick="handleExit()">Exit</button>
+      <button type="submit" class="logout-btn">Logout</button>
+    </div>
+    {% if logged_out %}
+      <div style="margin-top:24px; color:var(--primary); font-weight:600;">You have been logged out.</div>
+    {% endif %}
+    <div id="exit-message" style="display:none; margin-top:18px; color:red; font-weight:600;"></div>
+  </form>
+</div>
+
+<script>
+function handleExit() {
+  window.close();
+  setTimeout(function() {
+    if (!window.closed) {
+      document.getElementById('exit-message').style.display = 'block';
+      document.getElementById('exit-message').innerText = 'Unable to close tab automatically. Please close it manually.';
+    }
+  }, 500);
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  // If logged_out is true, start timer to redirect after 5 seconds
+  var loggedOut = {{ 'true' if logged_out else 'false' }};
+  if (loggedOut) {
+    setTimeout(function() {
+      window.location.href = '/login';
+    }, 5000); // 5 seconds
+  }
+});
+</script>
+
+<footer>
+  <p>&copy; 2025 Guardian Angle. All rights reserved.</p>
+  <p>
+    <a href="mailto:support@guardianangle.com"><i class="fas fa-envelope"></i></a>
+    <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+    <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook"></i></a>
+    <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+  </p>
+</footer>
+
+</body>
+</html>

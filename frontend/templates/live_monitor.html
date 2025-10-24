@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guardian Angel - Fall Detection Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #F4F6F8;
+            color: #212529;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 18px 0;
+            background: #fff;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid #ececec;
+        }
+
+        nav a,
+        nav button {
+            text-decoration: none;
+            padding: 10px 22px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            color: #212529;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        nav a:hover,
+        nav button:hover {
+            background: #FF6B35;
+            color: #fff;
+            transform: scale(1.08);
+        }
+
+        .dashboard {
+            max-width: 1200px;
+            margin: 32px auto;
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 28px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.10);
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 230px !important;
+        }
+
+        .webcam {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            min-height: 400px;
+            position: relative;
+        }
+
+        .webcam img {
+            width: 100%;
+            max-height: 400px;
+            border-radius: 20px;
+        }
+
+        .status-inner {
+            margin: 20px 0 0 0;
+            padding: 16px 32px;
+            border-radius: 12px;
+            background: #eee;
+            color: #212529;
+            font-size: 1.1rem;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .notifications {
+            max-height: 320px;
+            overflow-y: auto;
+        }
+
+        .notification {
+            background: #F4F6F8;
+            margin-bottom: 10px;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-size: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <a href="/about">About</a>
+        <a href="/live_monitor">Live Monitor</a>
+        <a href="/settings">Settings</a>
+        <a href="/contacts">Contact</a>
+        <a href="/logout">Logout</a>
+    </nav>
+
+    <div class="dashboard">
+        <div>
+            <div class="card">
+                <h3>Posture Stats</h3><canvas id="postureChart"></canvas>
+            </div>
+            <div class="card">
+                <h3>Fall Alerts</h3><canvas id="fallChart"></canvas>
+            </div>
+        </div>
+        <div>
+            <div class="card webcam">
+                <img id="videoStream" src="/video_feed" alt="Live Video Feed" />
+                <div id="statusCard" class="status-inner">Waiting for analysis...</div>
+            </div>
+        </div>
+        <div>
+            <div class="card notifications" id="notifBox">
+                <h3>Live Notifications</h3>
+            </div>
+        </div>
+    </div>
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle("dark");
+        }
+
+        // --- Chart Colors ---
+        const neonOrange = "#FF6B35", neonBlue = "#4A90E2";
+
+        // --- Charts ---
+        function drawChart(canvasId, type, labels, data, color, label) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            if (window[canvasId + "Chart"]) window[canvasId + "Chart"].destroy();
+            window[canvasId + "Chart"] = new Chart(ctx, {
+                type: type,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        backgroundColor: type === 'bar' ? [neonBlue, neonOrange, neonBlue] : neonOrange,
+                        borderColor: color,
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: true } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        function updateCharts() {
+            fetch('/api/posture').then(r => r.json()).then(j => {
+                drawChart('postureChart', 'bar', j.labels, j.data, neonBlue, 'Posture Count');
+            });
+            fetch('/api/falls').then(r => r.json()).then(j => {
+                drawChart('fallChart', 'line', j.labels, j.data, neonOrange, 'Falls');
+            });
+        }
+        function refreshStatus() {
+            fetch('/status').then(r => r.json()).then(json => {
+                const statusCard = document.getElementById('statusCard');
+                if (json.fall_detected) {
+                    statusCard.textContent = "FALL DETECTED!";
+                    statusCard.style.background = "#FF6B35"; statusCard.style.color = "#fff";
+                } else {
+                    statusCard.textContent = "No Fall Detected";
+                    statusCard.style.background = "#eee"; statusCard.style.color = "#212529";
+                }
+            });
+            fetch('/status').then(r => r.json()).then(json => {
+                const box = document.getElementById("notifBox"); box.innerHTML = "<h3>Live Notifications</h3>";
+                json.history.slice().reverse().forEach(t => {
+                    const div = document.createElement("div");
+                    div.className = "notification";
+                    div.innerText = "⚠ Fall detected at " + t;
+                    box.appendChild(div);
+                });
+            });
+        }
+
+        updateCharts();
+        setInterval(refreshStatus, 3000);
+        refreshStatus();
+    </script>
+</body>
+
+</html>

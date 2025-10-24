@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guardian Angle - Splash</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap');
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; font-family:'Inter', sans-serif; }
+.splash { height:100%; width:100%; display:flex; justify-content:center; align-items:center; background:linear-gradient(135deg, #4A90E2, #ffffff); position:relative; overflow:hidden; }
+.skeleton { position:absolute; width:100%; height:100%; background:url('https://www.transparenttextures.com/patterns/cubes.png'); opacity:0.05; animation:moveBackground 20s linear infinite; }
+@keyframes moveBackground { 0%{background-position:0 0;} 100%{background-position:2000px 2000px;} }
+/* Animated Title */
+/* Highlighted Animated Title */
+.guardian-title {
+        font-size:3.5rem;
+        color:#fff;
+        font-weight:900;
+        letter-spacing:3px;
+        text-shadow:0 0 18px #4A90E2, 0 2px 12px rgba(74,144,226,0.25), 0 0 32px #fff;
+                    color: #000;
+                    text-shadow: 0 0 18px #fff, 0 2px 12px #fff, 0 0 32px #fff;
+        animation: titleGlow 2s ease-in-out infinite alternate, fadeZoom 2s ease-in-out forwards;
+}
+@keyframes titleGlow {
+    0% { text-shadow:0 0 18px #4A90E2, 0 2px 12px rgba(74,144,226,0.25), 0 0 32px #fff; }
+    100% { text-shadow:0 0 32px #FF6B35, 0 2px 24px #43E97B, 0 0 48px #38F9D7; }
+}
+.splash-img {
+    animation: imgPulse 2.5s cubic-bezier(.4,0,.2,1) infinite alternate, fadeZoom 2s ease-in-out forwards;
+    max-width:700px;
+    max-height:80vh;
+    border-radius:24px;
+    box-shadow:0 12px 48px rgba(0,0,0,0.22);
+}
+@keyframes imgPulse {
+    0% { transform:scale(1); box-shadow:0 12px 48px rgba(0,0,0,0.22); }
+    100% { transform:scale(1.08); box-shadow:0 24px 64px rgba(74,144,226,0.18); }
+}
+@keyframes fadeZoom {
+    0% { opacity:0; transform:scale(0.8) translateY(20px); }
+    50% { opacity:0.7; transform:scale(1.05) translateY(-10px); }
+    100% { opacity:1; transform:scale(1) translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<div class="splash" id="splash">
+        <div class="skeleton"></div>
+        <div class="animated-title" style="position:absolute; top:40px; left:0; width:100%; text-align:center; z-index:2;">
+            <span class="guardian-title">Guardian Fall Detection</span>
+        </div>
+        <div class="image-holder" style="display:flex; justify-content:center; align-items:center; width:100%; height:100%;">
+            <img src="/static/screenshot_fall_detection.png" alt="Fall Detection" class="splash-img">
+        </div>
+</div>
+
+<script>
+setTimeout(() => {
+    window.location.href = "/login";
+}, 5000); // 5 seconds
+</script>
+
+</body>
+</html>
